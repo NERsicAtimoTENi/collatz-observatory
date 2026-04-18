@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10">
+    <title>Collatz Observatory</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <main class="page">
+        <header class="hero">
+            <p class="eyebrow">Collatz Observatory</p>
+            <h1>Simple metrics for Collatz sequences</h1>
+            <p class="intro">
+                Look up one number at a time and browse the locally stored metrics.
+            </p>
+        </header>
+
+        <section class="panel">
+            <h2>Lookup</h2>
+            <form class="lookup-form" data-detail-form>
+                <label for="lookup_n">Number</label>
+                <input id="lookup_n" type="number" min="1" name="lookup_n" required>
+                <button type="submit">Inspect</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>Processing state</h2>
+            <dl class="metrics-grid">
+                <div><dt>Total numbers stored</dt><dd>{{ total_numbers_stored }}</dd></div>
+                <div><dt>Last processed n</dt><dd>{{ system_state.last_processed_n }}</dd></div>
+                <div><dt>Max steps seen</dt><dd>{{ system_state.max_steps_seen }}</dd></div>
+                <div><dt>Max peak seen</dt><dd>{{ system_state.max_peak_seen }}</dd></div>
+            </dl>
+        </section>
+
+        <section class="panel">
+            <h2>Current Champions</h2>
+            <div class="champion-grid">
+                <div class="champion-card">
+                    <h3>Highest steps to 1</h3>
+                    {% if champion_steps %}
+                    <p class="champion-title"><a href="/numbers/{{ champion_steps.n }}">n={{ champion_steps.n }}</a></p>
+                    <dl class="champion-stats">
+                        <div><dt>steps_to_1</dt><dd>{{ champion_steps.steps_to_1 }}</dd></div>
+                        <div><dt>peak_value</dt><dd>{{ champion_steps.peak_value }}</dd></div>
+                        <div><dt>stopping_time</dt><dd>{{ champion_steps.stopping_time }}</dd></div>
+                    </dl>
+                    {% else %}
+                    <p class="table-note">No processed numbers yet.</p>
+                    {% endif %}
+                </div>
+                <div class="champion-card">
+                    <h3>Highest peak value</h3>
+                    {% if champion_peak %}
+                    <p class="champion-title"><a href="/numbers/{{ champion_peak.n }}">n={{ champion_peak.n }}</a></p>
+                    <dl class="champion-stats">
+                        <div><dt>steps_to_1</dt><dd>{{ champion_peak.steps_to_1 }}</dd></div>
+                        <div><dt>peak_value</dt><dd>{{ champion_peak.peak_value }}</dd></div>
+                        <div><dt>stopping_time</dt><dd>{{ champion_peak.stopping_time }}</dd></div>
+                    </dl>
+                    {% else %}
+                    <p class="table-note">No processed numbers yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Top records</h2>
+            <div class="leaderboard-grid">
+                <div>
+                    <h3>Top 10 by steps to 1</h3>
+                    <ol class="leaderboard-list">
+                        {% for number in top_steps %}
+                        <li>
+                            <a href="/numbers/{{ number.n }}">n={{ number.n }}</a>
+                            <span class="leaderboard-value">{{ number.steps_to_1 }} steps</span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <div>
+                    <h3>Top 10 by peak value</h3>
+                    <ol class="leaderboard-list">
+                        {% for number in top_peaks %}
+                        <li>
+                            <a href="/numbers/{{ number.n }}">n={{ number.n }}</a>
+                            <span class="leaderboard-value">peak {{ number.peak_value }}</span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Latest discoveries</h2>
+            <div class="leaderboard-grid">
+                <div>
+                    <h3>20 most recently processed</h3>
+                    <ol class="leaderboard-list">
+                        {% for number in latest_numbers %}
+                        <li>
+                            <a href="/numbers/{{ number.n }}">n={{ number.n }}</a>
+                            <span class="leaderboard-value">{{ number.steps_to_1 }} steps, peak {{ number.peak_value }}</span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <div>
+                    <h3>10 most recent step records</h3>
+                    <ol class="leaderboard-list">
+                        {% for number in latest_step_records %}
+                        <li>
+                            <a href="/numbers/{{ number.n }}">n={{ number.n }}</a>
+                            <span class="leaderboard-value">{{ number.steps_to_1 }} steps</span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <div>
+                    <h3>10 most recent peak records</h3>
+                    <ol class="leaderboard-list">
+                        {% for number in latest_peak_records %}
+                        <li>
+                            <a href="/numbers/{{ number.n }}">n={{ number.n }}</a>
+                            <span class="leaderboard-value">peak {{ number.peak_value }}</span>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Stored numbers</h2>
+            <div class="filter-row">
+                <span class="filter-label">Filter:</span>
+                <a class="filter-link {{ 'filter-link-active' if filter_mode == 'all' else '' }}" href="/">All numbers</a>
+                <a class="filter-link {{ 'filter-link-active' if filter_mode == 'record_steps' else '' }}" href="/?filter_mode=record_steps">Record step numbers only</a>
+                <a class="filter-link {{ 'filter-link-active' if filter_mode == 'record_peaks' else '' }}" href="/?filter_mode=record_peaks">Record peak numbers only</a>
+            </div>
+            <p class="table-note">Showing {{ filtered_total }} matching stored numbers.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>n</th>
+                        <th>steps_to_1</th>
+                        <th>peak_value</th>
+                        <th>stopping_time</th>
+                        <th>peak_ratio</th>
+                        <th>record_steps</th>
+                        <th>record_peak</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for number in numbers %}
+                    <tr>
+                        <td><a href="/numbers/{{ number.n }}">{{ number.n }}</a></td>
+                        <td>{{ number.steps_to_1 }}</td>
+                        <td>{{ number.peak_value }}</td>
+                        <td>{{ number.stopping_time }}</td>
+                        <td>{{ "%.6f"|format(number.peak_ratio) }}</td>
+                        <td>
+                            <span class="badge {{ 'badge-record' if number.is_record_steps else 'badge-muted' }}">
+                                {{ 'Yes' if number.is_record_steps else 'No' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'badge-record' if number.is_record_peak else 'badge-muted' }}">
+                                {{ 'Yes' if number.is_record_peak else 'No' }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        const detailForm = document.querySelector("[data-detail-form]");
+        if (detailForm) {
+            detailForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const formData = new FormData(detailForm);
+                const lookupValue = formData.get("lookup_n");
+                if (lookupValue) {
+                    window.location.href = `/numbers/${lookupValue}`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

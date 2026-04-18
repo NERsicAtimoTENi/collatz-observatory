@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collatz Detail {{ metrics.n }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <main class="page">
+        <header class="hero">
+            <p class="eyebrow">Collatz Observatory</p>
+            <h1>Number detail for n={{ metrics.n }}</h1>
+            <p class="intro"><a href="/">Back to homepage</a></p>
+        </header>
+
+        <section class="panel">
+            <h2>Metrics</h2>
+            <dl class="metrics-grid">
+                <div><dt>Steps to 1</dt><dd>{{ metrics.steps_to_1 }}</dd></div>
+                <div><dt>Peak value</dt><dd>{{ metrics.peak_value }}</dd></div>
+                <div><dt>Stopping time</dt><dd>{{ metrics.stopping_time }}</dd></div>
+                <div><dt>Peak ratio</dt><dd>{{ "%.6f"|format(metrics.peak_ratio) }}</dd></div>
+                <div>
+                    <dt>Record steps</dt>
+                    <dd><span class="badge {{ 'badge-record' if metrics.is_record_steps else 'badge-muted' }}">{{ 'Yes' if metrics.is_record_steps else 'No' }}</span></dd>
+                </div>
+                <div>
+                    <dt>Record peak</dt>
+                    <dd><span class="badge {{ 'badge-record' if metrics.is_record_peak else 'badge-muted' }}">{{ 'Yes' if metrics.is_record_peak else 'No' }}</span></dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="panel">
+            <h2>Sequence chart</h2>
+            <div class="chart-wrap">
+                <canvas id="collatz-chart" aria-label="Collatz sequence chart" role="img"></canvas>
+            </div>
+            <p class="chart-note">Y-axis uses a {{ "logarithmic" if use_log_scale else "linear" }} scale.</p>
+            <p class="sequence">{{ sequence | join(" -> ") }}</p>
+        </section>
+    </main>
+    <script>
+        const stepLabels = {{ step_labels | tojson }};
+        const sequenceValues = {{ sequence | tojson }};
+        const useLogScale = {{ use_log_scale | tojson }};
+
+        new Chart(document.getElementById("collatz-chart"), {
+            type: "line",
+            data: {
+                labels: stepLabels,
+                datasets: [{
+                    data: sequenceValues,
+                    borderColor: "#9f4f2d",
+                    backgroundColor: "rgba(159, 79, 45, 0.12)",
+                    borderWidth: 2,
+                    pointRadius: sequenceValues.length > 80 ? 0 : 2,
+                    pointHoverRadius: 4,
+                    tension: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Step"
+                        }
+                    },
+                    y: {
+                        type: useLogScale ? "logarithmic" : "linear",
+                        min: 1,
+                        title: {
+                            display: true,
+                            text: "Value"
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# Build artifacts
+*.egg-info/
+
+# Database
+data/*.db
+
+# OS files
+.DS_Store
