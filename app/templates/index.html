@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="10">
-    <title>Collatz Observatory</title>
+    <title>Collatz Projector</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <main class="page">
         <header class="hero">
-            <p class="eyebrow">Collatz Observatory</p>
-            <h1>Simple metrics for Collatz sequences</h1>
-            <p class="intro">
-                Look up one number at a time and browse the locally stored metrics.
-            </p>
+            <p class="eyebrow">Collatz Projector</p>
+            <h1>Observe Collatz sequences</h1>
+           <p class="intro">
+    Track sequence length, peak values, and records as numbers move through the Collatz process. Built for observation, not explanation.
+          </p>
         </header>
 
         <section class="panel">
-            <h2>Lookup</h2>
+            <h2>Inspect a Number</h2>
             <form class="lookup-form" data-detail-form>
                 <label for="lookup_n">Number</label>
                 <input id="lookup_n" type="number" min="1" name="lookup_n" required>
@@ -27,7 +27,7 @@
         </section>
 
         <section class="panel">
-            <h2>Processing state</h2>
+            <h2>System Status</h2>
             <dl class="metrics-grid">
                 <div><dt>Total numbers stored</dt><dd>{{ total_numbers_stored }}</dd></div>
                 <div><dt>Last processed n</dt><dd>{{ system_state.last_processed_n }}</dd></div>
@@ -97,10 +97,10 @@
         </section>
 
         <section class="panel">
-            <h2>Latest discoveries</h2>
+            <h2>Recent Activity</h2>
             <div class="leaderboard-grid">
                 <div>
-                    <h3>20 most recently processed</h3>
+                    <h3>Recently processed numbers</h3>
                     <ol class="leaderboard-list">
                         {% for number in latest_numbers %}
                         <li>

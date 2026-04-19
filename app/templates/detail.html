@@ -3,42 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collatz Detail {{ metrics.n }}</title>
+   <title>Collatz Projector · n={{ metrics.n }}</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <main class="page">
         <header class="hero">
-            <p class="eyebrow">Collatz Observatory</p>
-            <h1>Number detail for n={{ metrics.n }}</h1>
-            <p class="intro"><a href="/">Back to homepage</a></p>
+            <p class="eyebrow">Collatz Projector</p>
+            <h1>Inspect n={{ metrics.n }}</h1>
+            <p class="intro"><a href="/">Return to overview</a></p>
         </header>
 
-        <section class="panel">
-            <h2>Metrics</h2>
-            <dl class="metrics-grid">
-                <div><dt>Steps to 1</dt><dd>{{ metrics.steps_to_1 }}</dd></div>
-                <div><dt>Peak value</dt><dd>{{ metrics.peak_value }}</dd></div>
-                <div><dt>Stopping time</dt><dd>{{ metrics.stopping_time }}</dd></div>
-                <div><dt>Peak ratio</dt><dd>{{ "%.6f"|format(metrics.peak_ratio) }}</dd></div>
-                <div>
-                    <dt>Record steps</dt>
-                    <dd><span class="badge {{ 'badge-record' if metrics.is_record_steps else 'badge-muted' }}">{{ 'Yes' if metrics.is_record_steps else 'No' }}</span></dd>
-                </div>
-                <div>
-                    <dt>Record peak</dt>
-                    <dd><span class="badge {{ 'badge-record' if metrics.is_record_peak else 'badge-muted' }}">{{ 'Yes' if metrics.is_record_peak else 'No' }}</span></dd>
-                </div>
-            </dl>
-        </section>
+ <section class="panel">
+    <h2>Metrics</h2>
+
+    <dl class="metrics-grid">
+        <div><dt>Steps to 1</dt><dd>{{ metrics.steps_to_1 }}</dd></div>
+        <div><dt>Peak value</dt><dd>{{ metrics.peak_value }}</dd></div>
+        <div><dt>Stopping time</dt><dd>{{ metrics.stopping_time }}</dd></div>
+        <div><dt>Peak ratio</dt><dd>{{ "%.6f"|format(metrics.peak_ratio) }}</dd></div>
+        <div>
+            <dt>Record steps</dt>
+            <dd><span class="badge {{ 'badge-record' if metrics.is_record_steps else 'badge-muted' }}">{{ 'Yes' if metrics.is_record_steps else 'No' }}</span></dd>
+        </div>
+        <div>
+            <dt>Record peak</dt>
+            <dd><span class="badge {{ 'badge-record' if metrics.is_record_peak else 'badge-muted' }}">{{ 'Yes' if metrics.is_record_peak else 'No' }}</span></dd>
+        </div>
+    </dl>
+
+    <p class="table-note">
+        {{ metrics.steps_to_1 }} steps to reach 1, peak {{ metrics.peak_value }}.
+    </p>
+</section>
 
         <section class="panel">
-            <h2>Sequence chart</h2>
+            <h2>Sequence</h2>
             <div class="chart-wrap">
                 <canvas id="collatz-chart" aria-label="Collatz sequence chart" role="img"></canvas>
             </div>
-            <p class="chart-note">Y-axis uses a {{ "logarithmic" if use_log_scale else "linear" }} scale.</p>
+            <p class="chart-note">Y-axis: {{ "logarithmic" if use_log_scale else "linear" }} scale.</p>
             <p class="sequence">{{ sequence | join(" -> ") }}</p>
         </section>
     </main>
