@@ -1,10 +1,18 @@
 from __future__ import annotations
 
 import sqlite3
+
+
+
+import os
 from pathlib import Path
 
-
-DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "data" / "collatz.db"
+DEFAULT_DB_PATH = Path(
+    os.getenv(
+        "DATABASE_PATH",
+        str(Path(__file__).resolve().parent.parent / "data/collatz.db")
+    )
+)
 
 
 def get_connection(db_path: str | Path | None = None) -> sqlite3.Connection:
